@@ -1,12 +1,17 @@
-import scala.reflect.runtime.universe._
+import scala.reflect.runtime.{universe => ru}
 
 class Issue(private val title: String) {
-    private def printTitle(): Unit = println(title)
+  private def printTitle(): Unit = println(title)
 }
 
 object ReflectionChallenge extends App {
-    val issue = new Issue("不具合1")
+  val issue = new Issue("不具合1")
 
-      // TODO リフレクションを用いて printTitle() メソッドを呼び出す
+  val mirror = ru.runtimeMirror(issue.getClass.getClassLoader)
+  val instanceMirror = mirror.reflect(issue)
+  val printTitleMirror = instanceMirror.reflectMethod(
+    ru.typeOf[Issue].decl(ru.TermName("printTitle")).asMethod
+  )
+
+  printTitleMirror()
 }
-
